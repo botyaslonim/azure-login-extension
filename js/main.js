@@ -17,7 +17,8 @@
 
 	// запрашиваем информацию о пользователе с помощью токена, документация https://docs.microsoft.com/ru-ru/graph/auth-v2-user
 	const getUserData = () => {
-		if(!accessToken && !localStorage["azure_login_" + key + "_accessToken"]) return false; 
+		// если нет токена, новый можно получить только через авторизацию
+		if (!accessToken && !localStorage["azure_login_" + key + "_accessToken"]) return false; 
 		fetch(msGraphUrl, 
 		{
 			method : "GET",
@@ -50,13 +51,11 @@
 				let _st = redirect_url.slice(redirect_url.indexOf('state') + 6);
 				if(_st === state) {
 					appCode = redirect_url.slice(redirect_url.indexOf('code') + 5);
-					appCode = appCode.slice(0, appCode.indexOf('&'));
-					console.log(appCode);
+					appCode = appCode.slice(0, appCode.indexOf('&'));		
 					// сохраняем код доступа для проверки при следующем входе
 					localStorage["azure_login_" + key + "_appCode"] = appCode;
 					document.getElementById("logout").style.display = "block";
 					document.getElementById("login").style.display = "none";
-
 					// запрашиваем токен
 					getToken(appCode);
 				}				
@@ -80,8 +79,7 @@
 				}			
 			})
 			.then((response) => response.json())
-			.then((response) => {
-				console.log(response);
+			.then((response) => {				
 				accessToken = response.access_token;
 				refreshToken = response.refresh_token;
 				localStorage["azure_login_" + key + "_accessToken"] = accessToken;
@@ -105,8 +103,7 @@
 				}				
 			})
 			.then((response) => response.json())
-			.then((response) => {
-				console.log(response);
+			.then((response) => {			
 				accessToken = response.access_token;
 				refreshToken = response.refresh_token;
 				// новая пара токенов пришла, можем ещё раз спросить имя пользователя
@@ -133,8 +130,7 @@
 				'url': 'https://login.windows.net/common/oauth2/v2.0/logout', 
 				'interactive': true
 			},
-			function(redirect_url) { 
-				console.log("logout redirect_url: " + redirect_url);	
+			function(redirect_url) {	
 				userName = null;
 				accessToken = null;
 				refreshToken = null;				
